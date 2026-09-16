@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="theme-color" content="#1251A3" />
+<meta name="theme-color" content="#B85C38" />
 <title>PDFハイライト ライト版</title>
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" href="favicon-32.png" sizes="32x32" />
@@ -12,18 +12,19 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <style>
   :root {
-    --primary: #1251A3;
-    --primary-light: #1a6fdb;
-    --primary-dark: #0d3d7a;
-    --accent: #00b4d8;
-    --bg: #f0f4fa;
-    --surface: #ffffff;
-    --text: #1a2332;
-    --text-sub: #5a6a7e;
-    --border: #dde3ee;
-    --radius: 14px;
-    --shadow: 0 2px 16px rgba(18,81,163,.10);
-    --shadow-lg: 0 8px 32px rgba(18,81,163,.16);
+    --primary: #B85C38;
+    --primary-light: #D97D52;
+    --primary-dark: #8F4526;
+    --accent: #A98A54;
+    --bg: #F7F2E9;
+    --surface: #FFFDF7;
+    --text: #2E2822;
+    --text-sub: #8A7B68;
+    --border: #E7DCC8;
+    --radius: 16px;
+    --shadow: 0 2px 20px rgba(184,92,56,.10);
+    --shadow-lg: 0 12px 40px rgba(184,92,56,.16);
+    --serif: 'Hiragino Mincho ProN', 'Yu Mincho', 'Shippori Mincho', serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -51,16 +52,37 @@
   }
 
   header {
-    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
-    color: #fff;
-    padding: 20px 24px 18px;
-    position: sticky; top: 0; z-index: 100;
-    box-shadow: 0 2px 12px rgba(18,81,163,.3);
+    padding: 44px 24px 28px;
+    text-align: center;
   }
-  header .inner { max-width: 640px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
-  header .logo { font-size: 1.6rem; animation: logoFloat 3s ease-in-out infinite; }
-  header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: .02em; }
-  header p  { font-size: .78rem; opacity: .85; margin-top: 2px; }
+  header .icon-badge {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.7rem;
+    margin: 0 auto 16px;
+    box-shadow: var(--shadow-lg);
+    animation: logoFloat 3s ease-in-out infinite;
+  }
+  header h1 {
+    font-family: var(--serif);
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: .02em;
+  }
+  header p  { font-size: .82rem; color: var(--text-sub); margin-top: 8px; }
+  header .rule {
+    width: 44px;
+    height: 2px;
+    background: var(--primary);
+    margin: 20px auto 0;
+    border-radius: 2px;
+  }
 
   main { max-width: 640px; margin: 0 auto; padding: 28px 16px 60px; }
 
@@ -74,9 +96,10 @@
     animation: fadeInUp .45s cubic-bezier(.2,.8,.2,1) both;
   }
   .card-title {
-    font-size: .95rem;
+    font-family: var(--serif);
+    font-size: 1.1rem;
     font-weight: 700;
-    color: var(--primary-dark);
+    color: var(--text);
     margin-bottom: 6px;
   }
   .card-sub {
@@ -105,7 +128,7 @@
     cursor: pointer;
     transition: border-color .15s, background .15s, transform .15s;
   }
-  .upload-box:hover { border-color: var(--primary-light); background: #f7faff; transform: translateY(-1px); }
+  .upload-box:hover { border-color: var(--primary-light); background: #FBF3E8; transform: translateY(-1px); }
   .upload-box input { display: none; }
   .upload-box .filename {
     font-size: .85rem;
@@ -149,7 +172,7 @@
   .tier-row input[type="number"]:focus {
     outline: none;
     border-color: var(--primary-light);
-    box-shadow: 0 0 0 3px rgba(26,111,219,.15);
+    box-shadow: 0 0 0 3px rgba(184,92,56,.15);
   }
   .tier-row input[type="color"] {
     width: 34px;
@@ -249,13 +272,10 @@
 </head>
 <body>
 <header>
-  <div class="inner">
-    <span class="logo">✏️</span>
-    <div>
-      <h1>PDFハイライト ライト版</h1>
-      <p>AI不使用・完全無料・データは外部送信されません</p>
-    </div>
-  </div>
+  <div class="icon-badge">✏️</div>
+  <h1>PDFハイライト ライト版</h1>
+  <p>AI不使用・完全無料・データは外部送信されません</p>
+  <div class="rule"></div>
 </header>
 
 <main>
