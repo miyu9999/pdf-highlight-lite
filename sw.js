@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pdf-highlight-lite-v1';
+const CACHE_NAME = 'pdf-highlight-lite-v2';
 const APP_SHELL = ['./', './index.html', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {

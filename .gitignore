@@ -3,3 +3,7 @@ package.json
 package-lock.json
 .DS_Store
 テスト資料/
+test/test-font.woff
+test/test-source.pdf
+test/test-textbook.pdf
+test/test-output-highlighted.pdf

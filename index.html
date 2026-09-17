@@ -2,419 +2,459 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="theme-color" content="#B85C38" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#1d2d3d" />
 <title>PDFハイライト ライト版</title>
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" href="favicon-32.png" sizes="32x32" />
 <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" />
 <style>
   :root {
-    --primary: #B85C38;
-    --primary-light: #D97D52;
-    --primary-dark: #8F4526;
-    --accent: #A98A54;
-    --bg: #F7F2E9;
-    --surface: #FFFDF7;
-    --text: #2E2822;
-    --text-sub: #8A7B68;
-    --border: #E7DCC8;
-    --radius: 16px;
-    --shadow: 0 2px 20px rgba(184,92,56,.10);
-    --shadow-lg: 0 12px 40px rgba(184,92,56,.16);
-    --serif: 'Hiragino Mincho ProN', 'Yu Mincho', 'Shippori Mincho', serif;
+    --bg: #f2f2f3;
+    --surface: #f2f2f3;
+    --card: #ffffff;
+    --text: #1d1f20;
+    --text-sub: rgba(29,31,32,.6);
+    --border: rgba(29,31,32,.16);
+    --border-soft: rgba(29,31,32,.08);
+    --accent: #5980a6;
+    --accent-hover: #597ea3;
+    --accent-active: #416180;
+    --accent-ink: #416180;
+    --accent-100: #eef6ff;
+    --accent-200: #d6ebff;
+    --accent-300: #b5d9fd;
+    --accent-400: #94bce3;
+    --accent-900: #1d2d3d;
+    --y: #ffed33;
+    --g: #66dd66;
+    --r: #ff7373;
+    --font-head: 'Barlow Condensed', 'Noto Sans JP', sans-serif;
+    --font-body: 'Barlow', 'Noto Sans JP', sans-serif;
+    --font-mono: ui-monospace, Menlo, monospace;
+    --content-pad: 18px;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+    font-family: var(--font-body);
     background: var(--bg);
     color: var(--text);
+    background-image: linear-gradient(rgba(29,31,32,.035) 1px,transparent 1px), linear-gradient(90deg,rgba(29,31,32,.035) 1px,transparent 1px);
+    background-size: 32px 32px, 32px 32px;
+    overscroll-behavior-y: none;
+  }
+
+  @keyframes shimmer { 0% { background-position: -90px 0; } 100% { background-position: 200px 0; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pop { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: scale(1); } }
+
+  .corner { position: absolute; width: 8px; height: 8px; pointer-events: none; }
+  .corner-tl { top: -1px; left: -1px; border-top: 1px solid rgba(29,31,32,.45); border-left: 1px solid rgba(29,31,32,.45); }
+  .corner-tr { top: -1px; right: -1px; border-top: 1px solid rgba(29,31,32,.45); border-right: 1px solid rgba(29,31,32,.45); }
+  .corner-bl { bottom: -1px; left: -1px; border-bottom: 1px solid rgba(29,31,32,.45); border-left: 1px solid rgba(29,31,32,.45); }
+  .corner-br { bottom: -1px; right: -1px; border-bottom: 1px solid rgba(29,31,32,.45); border-right: 1px solid rgba(29,31,32,.45); }
+  .corner.on-dark { border-color: rgba(242,242,243,.55) !important; }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
     min-height: 100vh;
-  }
-
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes popIn {
-    from { opacity: 0; transform: scale(.85); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  @keyframes logoFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-2px); }
-  }
-  @keyframes shimmer {
-    0% { background-position: -80px 0; }
-    100% { background-position: 160px 0; }
-  }
-
-  header {
-    padding: 44px 24px 28px;
-    text-align: center;
-  }
-  header .icon-badge {
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.7rem;
-    margin: 0 auto 16px;
-    box-shadow: var(--shadow-lg);
-    animation: logoFloat 3s ease-in-out infinite;
-  }
-  header h1 {
-    font-family: var(--serif);
-    font-size: 1.55rem;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: .02em;
-  }
-  header p  { font-size: .82rem; color: var(--text-sub); margin-top: 8px; }
-  header .rule {
-    width: 44px;
-    height: 2px;
-    background: var(--primary);
-    margin: 20px auto 0;
-    border-radius: 2px;
-  }
-
-  main { max-width: 640px; margin: 0 auto; padding: 28px 16px 60px; }
-
-  .card {
     background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 24px;
-    margin-bottom: 20px;
-    border: 1px solid var(--border);
-    animation: fadeInUp .45s cubic-bezier(.2,.8,.2,1) both;
-  }
-  .card-title {
-    font-family: var(--serif);
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-  .card-sub {
-    font-size: .8rem;
-    color: var(--text-sub);
-    margin-bottom: 18px;
-    line-height: 1.5;
-  }
-
-  .upload-row {
-    margin-bottom: 16px;
-  }
-  .upload-label {
-    display: block;
-    font-size: .85rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-  .upload-box {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    border: 1.5px dashed var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    cursor: pointer;
-    transition: border-color .15s, background .15s, transform .15s;
-  }
-  .upload-box:hover { border-color: var(--primary-light); background: #FBF3E8; transform: translateY(-1px); }
-  .upload-box input { display: none; }
-  .upload-box .filename {
-    font-size: .85rem;
-    color: var(--text-sub);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .upload-box .filename.picked { color: var(--primary-dark); font-weight: 700; }
-
-  .tier-settings {
-    margin-bottom: 18px;
-    padding: 14px 16px;
-    background: var(--bg);
-    border-radius: 10px;
-    border: 1px solid var(--border);
-  }
-  .tier-settings-title {
-    font-size: .8rem;
-    font-weight: 700;
-    color: var(--text-sub);
-    margin-bottom: 10px;
-  }
-  .tier-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-    font-size: .85rem;
-  }
-  .tier-row:last-child { margin-bottom: 0; }
-  .tier-row input[type="number"] {
-    width: 56px;
-    padding: 6px 8px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: .85rem;
-    font-family: inherit;
-    transition: border-color .15s, box-shadow .15s;
-  }
-  .tier-row input[type="number"]:focus {
-    outline: none;
-    border-color: var(--primary-light);
-    box-shadow: 0 0 0 3px rgba(184,92,56,.15);
-  }
-  .tier-row input[type="color"] {
-    width: 34px;
-    height: 28px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0;
-    cursor: pointer;
-    background: none;
-    transition: transform .15s;
-  }
-  .tier-row input[type="color"]:hover { transform: scale(1.08); }
-  .tier-row .tier-label { color: var(--text-sub); }
-
-  button.action {
-    width: 100%;
-    padding: 14px 18px;
-    border-radius: 10px;
-    border: none;
-    font-size: .95rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: opacity .15s, transform .15s, box-shadow .15s;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    color: #fff;
-  }
-  button.action:active:not(:disabled) { transform: translateY(1px) scale(.99); }
-  button.action:disabled { opacity: .5; cursor: not-allowed; }
-  button.action:hover:not(:disabled) { opacity: .93; box-shadow: var(--shadow-lg); transform: translateY(-1px); }
-
-  .btn-secondary {
-    background: var(--surface);
-    color: var(--primary-dark);
-    border: 1.5px solid var(--border) !important;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 0 40px rgba(29,31,32,.06);
   }
 
-  .progress-wrap { margin-top: 18px; }
-  .progress-bar-bg {
-    background: var(--bg);
-    border-radius: 999px;
-    height: 10px;
-    overflow: hidden;
-    margin-bottom: 8px;
-  }
-  .progress-bar-fill {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-    background-image: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%),
-      linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
-    background-size: 100% 100%, 80px 100%;
-    background-repeat: no-repeat, no-repeat;
-    height: 100%;
-    width: 0%;
-    transition: width .3s ease;
-    animation: shimmer 1.3s linear infinite;
-  }
-  .progress-msg { font-size: .8rem; color: var(--text-sub); }
-
-  .error-box {
-    background: #fff0f0;
-    border: 1px solid #ffc4c4;
-    color: #b23b3b;
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: .85rem;
-    margin-top: 14px;
+  /* ── PC/タブレット幅対応：モバイル比率のまま引き伸ばさず、中央に収まったパネルにする ── */
+  @media (min-width: 720px) {
+    body { display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+    .app {
+      --content-pad: 32px;
+      width: 100%;
+      max-width: 760px;
+      min-height: 0;
+      height: min(880px, calc(100vh - 80px));
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 70px rgba(29,31,32,.16);
+    }
+    .topbar { padding-left: var(--content-pad); padding-right: var(--content-pad); }
+    .bottombar { padding-left: var(--content-pad); padding-right: var(--content-pad); }
+    .feature-grid { grid-template-columns: repeat(3, 1fr); }
+    #tier-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .tier-card { margin-bottom: 0; }
+    .sheet-overlay { position: absolute; }
+    .sheet { max-width: 420px; margin: 0 auto; border: 1px solid var(--border); border-bottom: none; }
   }
 
-  .result-stats {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 18px;
+  /* ── トップバー ───────────────────────────────────────── */
+  .topbar { padding: max(12px, env(safe-area-inset-top)) 18px 4px; border-bottom: 1px solid var(--border); }
+  .topbar-row { display: flex; align-items: center; gap: 10px; min-height: 30px; }
+  .back-btn {
+    width: 30px; height: 30px; flex: none; display: flex; align-items: center; justify-content: center;
+    background: transparent; border: 1px solid var(--border); cursor: pointer; color: var(--text);
+    font: 400 15px/1 sans-serif; padding: 0;
   }
-  .badge {
-    display: inline-block;
-    background: var(--primary);
-    color: #fff;
-    font-size: .8rem;
-    font-weight: 700;
-    padding: 6px 14px;
-    border-radius: 999px;
-    animation: popIn .35s cubic-bezier(.34,1.56,.64,1) both;
-  }
-  .badge.sub { background: var(--accent); }
+  .back-btn:hover { background: rgba(89,128,166,.1); }
+  .titles { flex: 1; min-width: 0; }
+  .screen-title { font: 600 21px/1.1 var(--font-head); letter-spacing: .005em; }
+  .screen-sub { font-size: 11px; line-height: 1.35; color: var(--text-sub); margin-top: 3px; }
+  .step-label { font: 600 10px/1 var(--font-mono); color: var(--accent-ink); letter-spacing: .12em; white-space: nowrap; flex: none; }
 
-  .note {
-    font-size: .75rem;
-    color: var(--text-sub);
-    line-height: 1.6;
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-  }
-
+  .step-bar { display: flex; gap: 6px; margin: 14px 0 12px; }
+  .step-seg { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+  .step-seg .fill { height: 2px; background: var(--border); }
+  .step-seg.filled .fill { background: var(--accent); }
+  .step-seg .lbl { display: flex; gap: 5px; align-items: baseline; font: 500 9px/1 var(--font-mono); letter-spacing: .08em; color: rgba(29,31,32,.32); }
+  .step-seg.filled .lbl { color: rgba(29,31,32,.55); }
+  .step-seg.current .lbl { color: var(--accent-ink); }
+  .step-seg .lbl .name { font-family: var(--font-head); font-size: 10.5px; letter-spacing: .02em; }
   .hidden { display: none !important; }
+
+  /* ── コンテンツ ───────────────────────────────────────── */
+  .content { flex: 1; overflow-y: auto; padding: 0 var(--content-pad); -webkit-overflow-scrolling: touch; }
+  .screen { padding: 20px 0 16px; animation: rise .35s cubic-bezier(.2,.8,.2,1) both; }
+  .lead { font-size: 13px; line-height: 1.7; color: rgba(29,31,32,.75); margin: 0 0 18px; }
+
+  /* イントロ */
+  .hero {
+    position: relative; margin: 2px calc(-1 * var(--content-pad)) 20px; padding: 26px var(--content-pad) 24px;
+    background: var(--accent-900); color: #f2f2f3; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(242,242,243,.07) 1px,transparent 1px), linear-gradient(90deg,rgba(242,242,243,.07) 1px,transparent 1px);
+    background-size: 26px 26px, 26px 26px;
+  }
+  .hero-inner { position: relative; }
+  .hero-eyebrow { font: 500 9.5px/1 var(--font-mono); letter-spacing: .2em; color: rgba(242,242,243,.55); margin-bottom: 14px; }
+  .hero-title { font: 600 30px/1.1 var(--font-head); letter-spacing: .01em; }
+  .hero-tiers { display: flex; gap: 4px; margin-top: 18px; align-items: flex-end; }
+  .hero-tiers .bar { height: 5px; }
+  .hero-tiers .note { flex: 1; }
+  .hero-tiers .cnt { font: 500 9px/1 var(--font-mono); letter-spacing: .12em; color: rgba(242,242,243,.5); }
+  .feature-grid { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 8px; }
+  .feature-grid .f { background: var(--card); padding: 13px 15px; }
+  .feature-grid .f .t { font: 600 13px/1.3 var(--font-head); margin-bottom: 3px; letter-spacing: .01em; }
+  .feature-grid .f .d { font-size: 11.5px; line-height: 1.6; color: var(--text-sub); }
+
+  /* ファイル選択 */
+  .pick-btn {
+    width: 100%; display: flex; align-items: center; gap: 12px; padding: 16px;
+    background: transparent; border: 1px dashed rgba(29,31,32,.3); cursor: pointer; text-align: left; font-family: inherit;
+  }
+  .pick-btn:hover { border-color: var(--accent); background: rgba(89,128,166,.06); }
+  .pick-icon { width: 22px; height: 28px; border: 1px solid rgba(29,31,32,.4); flex: none; position: relative; }
+  .pick-icon::after { content: ''; position: absolute; right: 0; top: 0; border-left: 1px solid rgba(29,31,32,.4); border-bottom: 1px solid rgba(29,31,32,.4); width: 7px; height: 7px; background: var(--bg); }
+  .pick-main { flex: 1; min-width: 0; }
+  .pick-label { display: block; font: 600 14px/1.2 var(--font-head); }
+  .pick-hint { display: block; font-size: 11.5px; color: var(--text-sub); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pick-plus { font-size: 18px; color: var(--accent); line-height: 1; }
+
+  .file-list { margin-top: 16px; border: 1px solid var(--border); }
+  .file-list-head { display: flex; justify-content: space-between; align-items: center; padding: 9px 13px; border-bottom: 1px solid var(--border-soft); font: 600 10px/1 var(--font-mono); letter-spacing: .08em; color: rgba(29,31,32,.6); }
+  .file-list-head button { background: none; border: 0; padding: 0; cursor: pointer; font: inherit; color: var(--accent-ink); text-decoration: underline; }
+  .file-row { display: flex; align-items: center; gap: 10px; padding: 10px 13px; border-bottom: 1px solid var(--border-soft); }
+  .file-row .no { font: 500 10px/1 var(--font-mono); color: rgba(29,31,32,.45); width: 18px; }
+  .file-row .name { flex: 1; min-width: 0; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-row .pages { font-size: 11px; color: rgba(29,31,32,.5); }
+  .file-list-foot { padding: 9px 13px; font-size: 11.5px; color: var(--text-sub); }
+
+  .notebox { margin-top: 18px; padding: 13px 15px; background: rgba(89,128,166,.08); }
+  .notebox-t { font: 600 11px/1 var(--font-mono); letter-spacing: .08em; color: var(--accent-ink); margin-bottom: 7px; }
+  .notebox-d { font-size: 12px; line-height: 1.7; color: rgba(29,31,32,.75); }
+
+  /* 進捗（busy） */
+  .busy-wrap { padding: 50px 0; }
+  .busy-pct { font: 600 46px/1 var(--font-head); color: var(--accent-ink); letter-spacing: -.01em; }
+  .busy-bar-bg { margin: 18px 0 10px; height: 6px; background: rgba(29,31,32,.1); overflow: hidden; }
+  .busy-bar-fill {
+    height: 100%; background: var(--accent);
+    background-image: linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);
+    background-size: 90px 100%; background-repeat: no-repeat; animation: shimmer 1.3s linear infinite;
+    transition: width .3s ease; width: 0%;
+  }
+  .busy-msg { font-size: 12.5px; line-height: 1.6; color: rgba(29,31,32,.7); min-height: 1.6em; }
+  .busy-log { margin-top: 24px; display: grid; gap: 1px; background: var(--border-soft); border: 1px solid var(--border-soft); }
+  .busy-log .row { background: var(--card); padding: 9px 13px; display: flex; justify-content: space-between; gap: 10px; font-size: 11.5px; color: rgba(29,31,32,.4); }
+  .busy-log .row.done { color: rgba(29,31,32,.8); }
+  .busy-log .row .v { font-family: var(--font-mono); font-size: 10.5px; }
+
+  /* 用語確認 */
+  .term-summary { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .term-summary span { padding: 5px 10px; border: 1px solid rgba(29,31,32,.2); font-size: 11px; }
+  .term-list { border: 1px solid var(--border); max-height: 46vh; overflow-y: auto; }
+  .term-row {
+    width: 100%; display: flex; align-items: center; gap: 11px; padding: 11px 13px;
+    background: var(--card); border: 0; border-bottom: 1px solid var(--border-soft); cursor: pointer; font-family: inherit; text-align: left;
+  }
+  .term-row:hover { background: rgba(89,128,166,.08); }
+  .term-row.off { background: rgba(29,31,32,.03); }
+  .term-check { width: 16px; height: 16px; border: 1px solid var(--accent); background: var(--accent); flex: none; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #f2f2f3; line-height: 1; }
+  .term-row.off .term-check { border-color: rgba(29,31,32,.3); background: transparent; }
+  .term-no { font: 500 9.5px/1 var(--font-mono); color: rgba(29,31,32,.35); width: 15px; flex: none; }
+  .term-text { flex: 1; min-width: 0; font-size: 14px; letter-spacing: .01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .term-row.off .term-text { color: rgba(29,31,32,.4); text-decoration: line-through; }
+  .term-bar { height: 4px; flex: none; }
+  .term-count { font: 500 11px/1 var(--font-mono); color: rgba(29,31,32,.55); width: 30px; text-align: right; flex: none; }
+
+  .excluded-box { margin-top: 14px; padding: 12px 14px; border: 1px solid var(--border); }
+  .excluded-title { font: 600 11px/1 var(--font-mono); letter-spacing: .08em; color: var(--accent-ink); margin-bottom: 8px; }
+  .excluded-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .excluded-chips span { padding: 4px 9px; background: rgba(29,31,32,.07); font-size: 11.5px; color: rgba(29,31,32,.6); text-decoration: line-through; }
+  .excluded-note { font-size: 11px; line-height: 1.6; color: var(--text-sub); margin-top: 9px; }
+
+  /* ティア設定 */
+  .tier-card { border: 1px solid var(--border); padding: 13px 14px; margin-bottom: 14px; }
+  .tier-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .stepper-btn { width: 34px; height: 34px; border: 1px solid rgba(29,31,32,.2); background: transparent; cursor: pointer; font: 400 16px/1 sans-serif; color: var(--text); }
+  .stepper-btn:hover { background: rgba(89,128,166,.1); }
+  .tier-count { min-width: 44px; text-align: center; font: 600 24px/1 var(--font-head); }
+  .tier-unit { flex: 1; font-size: 12.5px; color: rgba(29,31,32,.7); }
+  .tier-swatch-preview { width: 46px; height: 20px; border: 1px solid rgba(29,31,32,.2); }
+  .swatch-row { display: flex; gap: 7px; }
+  .swatch-btn { width: 34px; height: 34px; border: 1px solid rgba(29,31,32,.2); cursor: pointer; padding: 0; }
+  .swatch-btn.picked { border: 2px solid var(--text); }
+  .tier-note { margin-top: 4px; font-size: 11.5px; line-height: 1.7; color: var(--text-sub); }
+
+  /* 結果 */
+  .result-hero { margin: 0 calc(-1 * var(--content-pad)) 18px; padding: 20px var(--content-pad); background: var(--accent-900); color: #f2f2f3; position: relative; overflow: hidden; }
+  .result-hero::before { content:''; position:absolute; inset:0; background-image: linear-gradient(rgba(242,242,243,.07) 1px,transparent 1px), linear-gradient(90deg,rgba(242,242,243,.07) 1px,transparent 1px); background-size: 26px 26px, 26px 26px; }
+  .result-hero-inner { position: relative; }
+  .result-eyebrow { font: 500 9.5px/1 var(--font-mono); letter-spacing: .18em; color: rgba(242,242,243,.55); margin-bottom: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .result-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(242,242,243,.22); }
+  .result-stats .s { background: var(--accent-900); padding: 12px 14px; animation: pop .4s cubic-bezier(.34,1.56,.64,1) both; }
+  .result-stats .s .num { font: 600 32px/1 var(--font-head); letter-spacing: -.01em; }
+  .result-stats .s .lbl { font-size: 11px; color: rgba(242,242,243,.6); margin-top: 5px; }
+  .result-meta { display: flex; gap: 16px; margin-top: 16px; font: 500 9.5px/1 var(--font-mono); letter-spacing: .1em; color: rgba(242,242,243,.5); flex-wrap: wrap; }
+  .preview-card { position: relative; border: 1px solid var(--border); background: var(--card); padding: 18px 16px; margin-bottom: 8px; }
+  .preview-lines { display: grid; gap: 9px; }
+  .preview-line { display: flex; gap: 5px; align-items: center; height: 8px; }
+  .preview-caption { font: 500 10px/1 var(--font-mono); color: rgba(29,31,32,.4); margin-top: 16px; text-align: center; }
+  .result-note { font-size: 11.5px; line-height: 1.7; color: var(--text-sub); margin-bottom: 6px; }
+
+  /* ボトムバー */
+  .bottombar { padding: 12px 18px max(18px, env(safe-area-inset-bottom)); border-top: 1px solid var(--border); background: var(--surface); }
+  .btn-primary {
+    position: relative; width: 100%; min-height: 52px; background: var(--accent); color: #f2f2f3; border: 0;
+    cursor: pointer; font: 600 17px/1.2 var(--font-head); letter-spacing: .05em;
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+  .btn-primary:active:not(:disabled) { background: var(--accent-active); }
+  .btn-primary:disabled { background: rgba(29,31,32,.35); cursor: not-allowed; }
+  .btn-secondary {
+    width: 100%; min-height: 44px; margin-top: 9px; background: transparent; color: var(--text);
+    border: 1px solid rgba(29,31,32,.2); cursor: pointer; font: 600 14px/1.2 var(--font-head);
+  }
+  .btn-secondary:hover { background: rgba(89,128,166,.08); }
+  .busy-note { text-align: center; font-size: 11.5px; color: rgba(29,31,32,.5); padding: 12px 0 0; }
+
+  /* シート */
+  .sheet-overlay { position: fixed; inset: 0; background: rgba(29,31,32,.45); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
+  .sheet { width: 100%; max-width: 480px; background: var(--surface); border-top: 1px solid rgba(29,31,32,.2); padding: 18px; animation: rise .25s cubic-bezier(.2,.8,.2,1) both; }
+  .sheet-title { font: 600 17px/1.15 var(--font-head); margin-bottom: 4px; }
+  .sheet-sub { font-size: 11.5px; color: var(--text-sub); margin-bottom: 16px; overflow-wrap: break-word; }
+  .sheet-items { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .sheet-item { background: var(--card); border: 0; padding: 14px; cursor: pointer; font-family: inherit; text-align: left; display: flex; align-items: center; gap: 11px; width: 100%; }
+  .sheet-item:hover { background: rgba(89,128,166,.08); }
+  .sheet-item:disabled { opacity: .4; cursor: not-allowed; }
+  .sheet-item .dot { width: 18px; height: 18px; border: 1px solid rgba(29,31,32,.3); flex: none; }
+  .sheet-item-label { display: block; font: 600 14px/1.2 var(--font-head); }
+  .sheet-item-sub { display: block; font-size: 11px; color: var(--text-sub); margin-top: 3px; }
+  .sheet-close { width: 100%; min-height: 44px; margin-top: 12px; background: transparent; border: 1px solid rgba(29,31,32,.2); cursor: pointer; font: 600 14px/1.2 var(--font-head); color: var(--text); }
+  .sheet-close:hover { background: rgba(89,128,166,.08); }
+
+  .error-box { background: #fff0f0; border: 1px solid #ffc4c4; color: #b23b3b; padding: 12px 14px; font-size: 12.5px; margin: 0 0 14px; }
 </style>
 </head>
 <body>
-<header>
-  <div class="icon-badge">✏️</div>
-  <h1>PDFハイライト ライト版</h1>
-  <p>AI不使用・完全無料・データは外部送信されません</p>
-  <div class="rule"></div>
-</header>
+<div class="app">
 
-<main>
-  <section class="card" id="card-upload">
-    <div class="card-title">2つのPDFをアップロード</div>
-    <div class="card-sub">
-      ①いつも使ってるテキストPDF（ハイライトされる側）と、②レジュメ・過去問PDF（出る所のヒント、複数ファイルまとめて選択可）を選んでください。
-      どちらもテキストが埋め込まれたPDFのみ対応（画像スキャンPDFは非対応）。
-    </div>
-
-    <div class="upload-row">
-      <label class="upload-label">① 教科書・テキストPDF</label>
-      <label class="upload-box">
-        <input type="file" id="file-textbook" accept="application/pdf" />
-        <span>📄</span>
-        <span class="filename" id="filename-textbook">ファイルを選択</span>
-      </label>
-    </div>
-
-    <div class="upload-row">
-      <label class="upload-label">② レジュメ・過去問PDF（複数選択可）</label>
-      <label class="upload-box">
-        <input type="file" id="file-source" accept="application/pdf" multiple />
-        <span>📄</span>
-        <span class="filename" id="filename-source">ファイルを選択</span>
-      </label>
-    </div>
-
-    <div class="tier-settings">
-      <div class="tier-settings-title">ハイライト設定（出現回数のしきい値と色）</div>
-      <div class="tier-row">
-        <input type="number" class="tier-count" min="1" value="1" />
-        <span class="tier-label">回以上で</span>
-        <input type="color" class="tier-color" value="#ffed33" />
+  <div class="topbar">
+    <div class="topbar-row">
+      <button class="back-btn hidden" id="btn-back">←</button>
+      <div class="titles">
+        <div class="screen-title" id="screen-title"></div>
+        <div class="screen-sub" id="screen-sub"></div>
       </div>
-      <div class="tier-row">
-        <input type="number" class="tier-count" min="1" value="3" />
-        <span class="tier-label">回以上で</span>
-        <input type="color" class="tier-color" value="#66dd66" />
-      </div>
-      <div class="tier-row">
-        <input type="number" class="tier-count" min="1" value="5" />
-        <span class="tier-label">回以上で</span>
-        <input type="color" class="tier-color" value="#ff7373" />
-      </div>
+      <div class="step-label" id="step-label"></div>
     </div>
+    <div class="step-bar hidden" id="step-bar"></div>
+  </div>
 
-    <button class="action" id="btn-run" disabled>ハイライトを実行</button>
-
-    <div class="progress-wrap hidden" id="progress-wrap">
-      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
-      <div class="progress-msg" id="progress-msg">処理中…</div>
-    </div>
-
+  <div class="content" id="content">
     <div class="error-box hidden" id="error-box"></div>
 
-    <div class="note">
-      仕組み：レジュメ・過去問PDFから漢字・カタカナの用語を抽出し、出現回数をカウント。教科書PDF内で同じ文字列を探してハイライトします。AI（意味理解）は使っていないため、表記揺れ（略語・同義語）には対応していません。
-    </div>
-  </section>
+    <!-- intro -->
+    <section class="screen" id="screen-intro">
+      <div class="hero">
+        <div class="hero-inner">
+          <div class="hero-eyebrow">NO AI / NO SERVER / NO UPLOAD</div>
+          <div class="hero-title">レジュメの頻出語で、<br>教科書に線を引く。</div>
+          <div class="hero-tiers">
+            <span class="bar" style="width:78px;background:#ffed33"></span>
+            <span class="bar" style="width:46px;background:#66dd66"></span>
+            <span class="bar" style="width:28px;background:#ff7373"></span>
+            <span class="note"></span>
+            <span class="cnt">1 / 3 / 5+</span>
+          </div>
+        </div>
+      </div>
+      <p class="lead">レジュメと過去問のPDFから漢字・カタカナの用語を抽出して出現回数を数え、教科書PDFの同じ文字列をハイライトします。処理はすべてこの端末の中で完結します。</p>
+      <div class="feature-grid">
+        <div class="f"><div class="t">データは外部に送信しません</div><div class="d">サーバーもアカウントもありません。AIも使っていません。</div></div>
+        <div class="f"><div class="t">2回目以降はオフラインでも動きます</div><div class="d">ホーム画面に追加しておけば通学中にも使えます。</div></div>
+        <div class="f"><div class="t">対応しているのはテキスト埋め込みPDFのみ</div><div class="d">画像スキャンPDF、略語・同義語の言い換えには対応していません。</div></div>
+      </div>
+    </section>
 
-  <section class="card hidden" id="card-result">
-    <div class="card-title">完了</div>
-    <div class="result-stats" id="result-stats"></div>
-    <button class="action" id="btn-download">⬇️ ハイライト済みPDFをダウンロード</button>
-    <button class="action btn-secondary" id="btn-reset" style="margin-top:10px;">← もう一度</button>
-  </section>
-</main>
+    <!-- source -->
+    <section class="screen hidden" id="screen-source">
+      <p class="lead">出るところのヒントになるPDFです。科目ぶんまとめて選んでかまいません。</p>
+      <button class="pick-btn" id="btn-pick-source">
+        <span class="pick-icon"></span>
+        <span class="pick-main">
+          <span class="pick-label">ファイルを選ぶ</span>
+          <span class="pick-hint" id="source-hint">PDFを複数まとめて選べます</span>
+        </span>
+        <span class="pick-plus">+</span>
+      </button>
+      <div class="file-list hidden" id="source-list-wrap">
+        <div class="file-list-head">
+          <span id="source-count-label">選択済み 0件</span>
+          <button id="btn-clear-source">すべて外す</button>
+        </div>
+        <div id="source-list"></div>
+        <div class="file-list-foot" id="source-total-pages"></div>
+      </div>
+    </section>
+
+    <!-- textbook -->
+    <section class="screen hidden" id="screen-textbook">
+      <p class="lead">ハイライトされる側のPDFです。1冊だけ選べます。</p>
+      <button class="pick-btn" id="btn-pick-textbook">
+        <span class="pick-icon"></span>
+        <span class="pick-main">
+          <span class="pick-label" id="textbook-label">ファイルを選ぶ</span>
+          <span class="pick-hint" id="textbook-hint">テキスト埋め込みPDFのみ対応</span>
+        </span>
+        <span class="pick-plus">+</span>
+      </button>
+      <div class="notebox">
+        <div class="notebox-t">処理時間の目安</div>
+        <div class="notebox-d">200ページ程度の教科書で1〜2分ほどかかります。画面を開いたままにしてください。</div>
+      </div>
+    </section>
+
+    <!-- extract busy -->
+    <section class="screen hidden" id="screen-extract">
+      <div class="busy-wrap">
+        <div class="busy-pct" id="extract-pct">0%</div>
+        <div class="busy-bar-bg"><div class="busy-bar-fill" id="extract-bar"></div></div>
+        <div class="busy-msg" id="extract-msg">レジュメ・過去問からテキストを抽出中…</div>
+        <div class="busy-log" id="extract-log"></div>
+      </div>
+    </section>
+
+    <!-- terms -->
+    <section class="screen hidden" id="screen-terms">
+      <p class="lead">回数の多い順です。拾ってほしくない語はタップで外せます。</p>
+      <div class="term-summary">
+        <span id="term-total-label">抽出 0語</span>
+        <span id="term-excluded-label">除外中 0語</span>
+        <span id="term-shown-label"></span>
+      </div>
+      <div class="term-list" id="term-list"></div>
+      <div class="excluded-box hidden" id="excluded-box">
+        <div class="excluded-title">自動で除外したもの</div>
+        <div class="excluded-chips" id="excluded-chips"></div>
+        <div class="excluded-note">ページ上下8%に繰り返し出てくる語（講座名・日付など）と一般語リストを外しています。</div>
+      </div>
+    </section>
+
+    <!-- tiers -->
+    <section class="screen hidden" id="screen-tiers">
+      <p class="lead">出現回数のしきい値ごとに色を変えます。回数の大きいものから順に判定されます。</p>
+      <div id="tier-cards"></div>
+      <div class="tier-note">既定値は「1回＝黄／3回以上＝緑／5回以上＝赤」です。</div>
+    </section>
+
+    <!-- generate busy -->
+    <section class="screen hidden" id="screen-generate">
+      <div class="busy-wrap">
+        <div class="busy-pct" id="generate-pct">0%</div>
+        <div class="busy-bar-bg"><div class="busy-bar-fill" id="generate-bar"></div></div>
+        <div class="busy-msg" id="generate-msg">教科書PDFを行単位に分解中…</div>
+        <div class="busy-log" id="generate-log"></div>
+      </div>
+    </section>
+
+    <!-- result -->
+    <section class="screen hidden" id="screen-result">
+      <div class="result-hero">
+        <div class="result-hero-inner">
+          <div class="result-eyebrow" id="result-eyebrow">COMPLETE</div>
+          <div class="result-stats">
+            <div class="s"><div class="num" id="result-hit">0</div><div class="lbl">箇所ハイライト</div></div>
+            <div class="s"><div class="num" id="result-kind">0</div><div class="lbl">種類の用語</div></div>
+          </div>
+          <div class="result-meta" id="result-meta"></div>
+        </div>
+      </div>
+      <div class="preview-card">
+        <span class="corner corner-tl"></span><span class="corner corner-tr"></span><span class="corner corner-bl"></span><span class="corner corner-br"></span>
+        <div class="preview-lines" id="preview-lines"></div>
+        <div class="preview-caption" id="preview-caption">プレビュー（模式図）</div>
+      </div>
+      <div class="result-note">端末内で生成したPDFです。保存するまでどこにも残りません。</div>
+    </section>
+  </div>
+
+  <div class="bottombar">
+    <button class="btn-primary" id="btn-primary">
+      <span class="corner corner-tl on-dark"></span><span class="corner corner-tr on-dark"></span><span class="corner corner-bl on-dark"></span><span class="corner corner-br on-dark"></span>
+      <span id="btn-primary-label"></span>
+    </button>
+    <button class="btn-secondary hidden" id="btn-secondary"></button>
+    <div class="busy-note hidden" id="busy-note">処理中はこの画面を開いたままにしてください</div>
+  </div>
+
+  <input type="file" id="file-source" accept="application/pdf" multiple hidden />
+  <input type="file" id="file-textbook" accept="application/pdf" hidden />
+
+  <div class="sheet-overlay hidden" id="sheet-overlay">
+    <div class="sheet">
+      <div class="sheet-title" id="sheet-title"></div>
+      <div class="sheet-sub" id="sheet-sub"></div>
+      <div class="sheet-items" id="sheet-items"></div>
+      <button class="sheet-close" id="sheet-close">閉じる</button>
+    </div>
+  </div>
+
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script>
   const PDFJS_VERSION = "3.11.174";
   pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.worker.min.js`;
-  // 日本語（Adobe-Japan1等）のCIDフォント埋め込みPDFを正しく読むにはCMap設定が必須。
-  // cdnjsはcmapsフォルダをホストしていないためunpkg経由で取得する。
   const PDF_LOAD_OPTS = {
     cMapUrl: `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/cmaps/`,
     cMapPacked: true,
   };
 
-  const fileTextbookInput = document.getElementById('file-textbook');
-  const fileSourceInput = document.getElementById('file-source');
-  const filenameTextbook = document.getElementById('filename-textbook');
-  const filenameSource = document.getElementById('filename-source');
-  const btnRun = document.getElementById('btn-run');
-  const btnDownload = document.getElementById('btn-download');
-  const btnReset = document.getElementById('btn-reset');
-  const cardUpload = document.getElementById('card-upload');
-  const cardResult = document.getElementById('card-result');
-  const resultStats = document.getElementById('result-stats');
-  const progressWrap = document.getElementById('progress-wrap');
-  const progressBar = document.getElementById('progress-bar');
-  const progressMsg = document.getElementById('progress-msg');
-  const errorBox = document.getElementById('error-box');
+  // ═══════════════════════════════════════════════════════════════
+  // 処理ロジック（既存デスクトップ版と同一。ページ座標ベースのヘッダー/
+  // フッター検出・ストップワード・マッチング・PDF生成はそのまま流用）
+  // ═══════════════════════════════════════════════════════════════
 
-  let textbookFile = null;
-  let sourceFiles = [];
-  let outputBlobUrl = null;
-
-  fileTextbookInput.addEventListener('change', () => {
-    textbookFile = fileTextbookInput.files[0] || null;
-    filenameTextbook.textContent = textbookFile ? textbookFile.name : 'ファイルを選択';
-    filenameTextbook.classList.toggle('picked', !!textbookFile);
-    updateRunButton();
-  });
-
-  fileSourceInput.addEventListener('change', () => {
-    sourceFiles = Array.from(fileSourceInput.files || []);
-    filenameSource.textContent = sourceFiles.length
-      ? (sourceFiles.length === 1 ? sourceFiles[0].name : `${sourceFiles.length}件のファイル`)
-      : 'ファイルを選択';
-    filenameSource.classList.toggle('picked', sourceFiles.length > 0);
-    updateRunButton();
-  });
-
-  function updateRunButton() {
-    btnRun.disabled = !(textbookFile && sourceFiles.length > 0);
-  }
-
-  function showError(msg) {
-    errorBox.textContent = msg;
-    errorBox.classList.remove('hidden');
-  }
-  function clearError() {
-    errorBox.classList.add('hidden');
-    errorBox.textContent = '';
-  }
-  function setProgress(pct, msg) {
-    progressWrap.classList.remove('hidden');
-    progressBar.style.width = pct + '%';
-    progressMsg.textContent = msg;
-  }
-
-  // ── 漢字・カタカナの連続した塊を「用語」として抽出 ──────────────
   const TERM_RUN = /[一-鿿々゠-ヿー々]{2,}/g;
-
-  // どの医学分野の講義にも出てくる一般語・スライド定型文言は除外する
-  // （頻度だけで判定すると「場合」「治療」等の一般語がノイズとして上位を占めてしまうため）
   const STOPWORDS = new Set([
     '場合', '必要', '症状', '患者', '存在', '効果', '重要', '程度', '出現', '低下',
     '原因', '発生', '報告', '分類', '適応', '状態', '診断', '検査', '可能', '一般',
@@ -425,15 +465,7 @@
     '合併', '治療法', '令和', '平成', '昭和', 'コース', 'チャプター', 'ページ',
     '可能性', '有無',
   ]);
-
-  // ページ上端・下端のY座標ゾーンに出てくる用語が、同じファイル内の多数のページで
-  // 繰り返されていたら講座名・講師名・日付などのヘッダー/フッターとみなして除外する。
-  // テキストの抽出順（ストリーム順）はキャプション等が挟まると視覚上の並びと食い違う
-  // ことがあるため、実際のページ座標（getViewport由来）で判定する方が確実。
-  // 内容として繰り返し出てくる用語（治療・手術等）と違い、ヘッダー/フッターはページ上の
-  // 同じ位置に同じ文字列が繰り返される点で区別できる。科目名をハードコードしていないため
-  // どの科目のPDFでも同じロジックで機能する。
-  const ZONE_RATIO = 0.08; // 上下8%をヘッダー/フッターゾーンとみなす
+  const ZONE_RATIO = 0.08;
   const ZONE_MIN_PAGE_RATIO = 0.5;
   const ZONE_MIN_PAGES = 4;
 
@@ -471,13 +503,23 @@
     return counts;
   }
 
-  // ── PDFの各ページを「行」単位に分解し、文字ごとの座標を持たせる ──
+  async function extractPageGeometry(pdfDoc, onPage) {
+    const pages = [];
+    for (let p = 1; p <= pdfDoc.numPages; p++) {
+      const page = await pdfDoc.getPage(p);
+      const viewport = page.getViewport({ scale: 1 });
+      const content = await page.getTextContent();
+      pages.push({ height: viewport.height, items: content.items });
+      if (onPage) onPage(p, pdfDoc.numPages);
+    }
+    return pages;
+  }
+
   async function extractLines(pdfDoc, onPageProgress) {
     const pages = [];
     for (let p = 1; p <= pdfDoc.numPages; p++) {
       const page = await pdfDoc.getPage(p);
       const content = await page.getTextContent();
-
       const charRecords = [];
       for (const item of content.items) {
         const str = item.str;
@@ -490,16 +532,9 @@
         const n = str.length;
         const charWidth = n > 0 ? totalWidth / n : 0;
         for (let i = 0; i < n; i++) {
-          charRecords.push({
-            ch: str[i],
-            x: x0 + charWidth * i,
-            y: y0,
-            width: charWidth,
-            height: height,
-          });
+          charRecords.push({ ch: str[i], x: x0 + charWidth * i, y: y0, width: charWidth, height });
         }
       }
-
       charRecords.sort((a, b) => (b.y - a.y) || (a.x - b.x));
       const Y_TOL = 2.5;
       const lines = [];
@@ -521,18 +556,6 @@
     return pages;
   }
 
-  async function extractPageGeometry(pdfDoc) {
-    const pages = [];
-    for (let p = 1; p <= pdfDoc.numPages; p++) {
-      const page = await pdfDoc.getPage(p);
-      const viewport = page.getViewport({ scale: 1 });
-      const content = await page.getTextContent();
-      pages.push({ height: viewport.height, items: content.items });
-    }
-    return pages;
-  }
-
-  // ── 教科書ページの各行に対して、用語リストを長い順にマッチング ──
   function findMatches(pages, termCounts) {
     const terms = Object.keys(termCounts).sort((a, b) => b.length - a.length);
     const matches = [];
@@ -551,13 +574,10 @@
               const startChar = line.chars[idx];
               const endChar = line.chars[end - 1];
               matches.push({
-                pageNum: page.pageNum,
-                x: startChar.x,
-                y: startChar.y,
+                pageNum: page.pageNum, x: startChar.x, y: startChar.y,
                 width: (endChar.x + endChar.width) - startChar.x,
                 height: Math.max(startChar.height, endChar.height),
-                term,
-                count: termCounts[term],
+                term, count: termCounts[term],
               });
             }
             idx += 1;
@@ -570,32 +590,12 @@
 
   function hexToRgb01(hex) {
     const h = hex.replace('#', '');
-    return {
-      r: parseInt(h.slice(0, 2), 16) / 255,
-      g: parseInt(h.slice(2, 4), 16) / 255,
-      b: parseInt(h.slice(4, 6), 16) / 255,
-    };
+    return { r: parseInt(h.slice(0, 2), 16) / 255, g: parseInt(h.slice(2, 4), 16) / 255, b: parseInt(h.slice(4, 6), 16) / 255 };
   }
-
-  // 画面のティア設定（出現回数のしきい値・色）を読み取る。回数が大きい順に並べ、
-  // マッチ回数が最初に条件を満たしたティアの色を採用する。
-  function getTierSettings() {
-    const rows = document.querySelectorAll('.tier-row');
-    const tiers = [];
-    rows.forEach(row => {
-      const count = Math.max(1, parseInt(row.querySelector('.tier-count').value, 10) || 1);
-      const color = row.querySelector('.tier-color').value;
-      tiers.push({ minCount: count, color: hexToRgb01(color) });
-    });
-    tiers.sort((a, b) => b.minCount - a.minCount);
-    return tiers;
-  }
-
-  function tierColor(count, tiers) {
-    for (const t of tiers) {
-      if (count >= t.minCount) return t.color;
-    }
-    return tiers[tiers.length - 1].color;
+  function tierColorFor(count, tiers) {
+    const sorted = [...tiers].sort((a, b) => b.count - a.count);
+    for (const t of sorted) { if (count >= t.count) return t.color; }
+    return sorted[sorted.length - 1].color;
   }
 
   async function generateHighlightedPdf(originalArrayBuffer, matches, tiers) {
@@ -605,110 +605,500 @@
     for (const m of matches) {
       const page = pages[m.pageNum - 1];
       if (!page) continue;
-      const color = tierColor(m.count, tiers);
-      page.drawRectangle({
-        x: m.x,
-        y: m.y - 1,
-        width: Math.max(m.width, 2),
-        height: m.height + 3,
-        color: rgb(color.r, color.g, color.b),
-        opacity: 0.45,
-      });
+      const hex = tierColorFor(m.count, tiers);
+      const c = hexToRgb01(hex);
+      page.drawRectangle({ x: m.x, y: m.y - 1, width: Math.max(m.width, 2), height: m.height + 3, color: rgb(c.r, c.g, c.b), opacity: 0.45 });
     }
     return await pdfDoc.save();
   }
 
-  async function run() {
-    clearError();
-    btnRun.disabled = true;
-    setProgress(5, 'PDFを読み込み中…');
+  // ═══════════════════════════════════════════════════════════════
+  // UI 状態管理
+  // ═══════════════════════════════════════════════════════════════
 
-    try {
-      const textbookBuf1 = await textbookFile.arrayBuffer();
-      const textbookBuf2 = await textbookFile.arrayBuffer(); // pdf-lib用に別読み込み
+  const SCREENS = ["intro", "source", "textbook", "extract", "terms", "tiers", "generate", "result"];
+  const BACK_MAP = { source: "intro", textbook: "source", terms: "textbook", tiers: "terms", result: "tiers" };
+  const STEP_OF = { source: 1, textbook: 2, extract: 2, terms: 3, tiers: 4, generate: 4, result: 4 };
+  const TERM_DISPLAY_LIMIT = 150;
+  const SWATCHES = ["#ffed33", "#66dd66", "#ff7373", "#94bce3", "#c9a0ff"];
 
-      const sourceTexts = [];
-      const boilerplateTerms = new Set();
-      for (let i = 0; i < sourceFiles.length; i++) {
-        setProgress(5 + Math.floor((i / sourceFiles.length) * 25), `レジュメ・過去問から用語を抽出中…（${i + 1}/${sourceFiles.length}件）`);
-        const buf = await sourceFiles[i].arrayBuffer();
-        const sourcePdf = await pdfjsLib.getDocument({ data: buf, ...PDF_LOAD_OPTS }).promise;
-        const pages = await extractPageGeometry(sourcePdf);
-        for (const t of detectZoneTerms(pages)) boilerplateTerms.add(t);
-        sourceTexts.push(pages.map(pg => pg.items.map(it => it.str).join('')).join(''));
-      }
-      const termCounts = extractTermCounts(sourceTexts, boilerplateTerms);
-      const termCount = Object.keys(termCounts).length;
+  const state = {
+    screen: "intro",
+    sourceFiles: [],       // [{file, pages}]
+    textbookFile: null,
+    textbookPages: null,
+    termCounts: {},        // {term: count} 全件（フィルタ後）
+    boilerplateTerms: new Set(),
+    excluded: new Set(),   // ユーザーがタップで外した語
+    tiers: [{ count: 1, color: "#ffed33" }, { count: 3, color: "#66dd66" }, { count: 5, color: "#ff7373" }],
+    pct: 0,
+    matches: [],
+    outputBytes: null,
+    outputBlobUrl: null,
+    elapsedSec: 0,
+    sheet: null,           // null | 'save'
+    error: null,
+  };
 
-      if (termCount === 0) {
-        throw new Error('レジュメ・過去問PDFからテキストを抽出できませんでした。テキスト埋め込みPDFか確認してください（画像スキャンPDFは非対応）。');
-      }
+  const $ = (id) => document.getElementById(id);
 
-      setProgress(35, `教科書PDFを解析中…（用語${termCount}件抽出）`);
-      const textbookPdf = await pdfjsLib.getDocument({ data: textbookBuf1, ...PDF_LOAD_OPTS }).promise;
-      const pages = await extractLines(textbookPdf, (done, total) => {
-        setProgress(35 + Math.floor((done / total) * 40), `教科書PDFを解析中…（${done}/${total}ページ）`);
-      });
+  function cornersHTML(onDark) {
+    const cls = onDark ? ' on-dark' : '';
+    return `<span class="corner corner-tl${cls}"></span><span class="corner corner-tr${cls}"></span><span class="corner corner-bl${cls}"></span><span class="corner corner-br${cls}"></span>`;
+  }
 
-      const totalChars = pages.reduce((sum, pg) => sum + pg.lines.reduce((s, l) => s + l.text.length, 0), 0);
-      if (totalChars === 0) {
-        throw new Error('教科書PDFからテキストを抽出できませんでした。テキスト埋め込みPDFか確認してください（画像スキャンPDFは非対応）。');
-      }
+  function showScreen(name) {
+    for (const s of SCREENS) $('screen-' + s).classList.toggle('hidden', s !== name);
+  }
 
-      setProgress(80, 'マッチング中…');
-      const matches = findMatches(pages, termCounts);
-
-      setProgress(92, 'ハイライトPDFを生成中…');
-      const tiers = getTierSettings();
-      const outBytes = await generateHighlightedPdf(textbookBuf2, matches, tiers);
-
-      setProgress(100, '完了！');
-      const blob = new Blob([outBytes], { type: 'application/pdf' });
-      if (outputBlobUrl) URL.revokeObjectURL(outputBlobUrl);
-      outputBlobUrl = URL.createObjectURL(blob);
-
-      const uniqueTerms = new Set(matches.map(m => m.term)).size;
-      resultStats.innerHTML =
-        `<span class="badge">${matches.length}箇所ハイライト</span>` +
-        `<span class="badge sub">${uniqueTerms}種類の用語</span>`;
-
-      cardUpload.classList.add('hidden');
-      cardResult.classList.remove('hidden');
-    } catch (e) {
-      showError('エラーが発生しました: ' + e.message);
-      progressWrap.classList.add('hidden');
-      btnRun.disabled = false;
+  function meta(screen) {
+    switch (screen) {
+      case "intro": return { title: "PDFハイライト ライト版", sub: "AI不使用・ブラウザ内で完結", step: "" };
+      case "source": return { title: "レジュメ・過去問を選ぶ", sub: "出題傾向のもとになるPDF", step: "STEP 1/4" };
+      case "textbook": return { title: "教科書を選ぶ", sub: "ハイライトされるPDF", step: "STEP 2/4" };
+      case "extract": return { title: "用語を抽出中", sub: `レジュメ${state.sourceFiles.length}件を解析しています`, step: "STEP 2/4" };
+      case "terms": return { title: "用語を確認する", sub: "不要な語は外せます", step: "STEP 3/4" };
+      case "tiers": return { title: "ハイライト設定", sub: "回数のしきい値と色", step: "STEP 4/4" };
+      case "generate": return { title: "ハイライト生成中", sub: "教科書を処理しています", step: "STEP 4/4" };
+      default: return { title: "完了", sub: state.textbookFile ? state.textbookFile.name : "", step: "" };
     }
   }
 
-  btnRun.addEventListener('click', run);
+  function isBusy(screen) { const s = screen || state.screen; return s === "extract" || s === "generate"; }
 
-  btnDownload.addEventListener('click', () => {
-    if (!outputBlobUrl) return;
+  function effectiveTermCounts() {
+    const out = {};
+    for (const [term, count] of Object.entries(state.termCounts)) {
+      if (!state.excluded.has(term)) out[term] = count;
+    }
+    return out;
+  }
+
+  function go(screen) {
+    state.screen = screen;
+    render();
+  }
+
+  function showError(msg) {
+    state.error = msg;
+    render();
+  }
+
+  // ── 遷移トリガー（実処理の起動） ─────────────────────────
+  async function startExtract() {
+    go('extract');
+    try {
+      const sourceTexts = [];
+      const boilerplateTerms = new Set();
+      const total = state.sourceFiles.length;
+      for (let i = 0; i < total; i++) {
+        const buf = await state.sourceFiles[i].file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buf, ...PDF_LOAD_OPTS }).promise;
+        const pages = await extractPageGeometry(pdf);
+        for (const t of detectZoneTerms(pages)) boilerplateTerms.add(t);
+        sourceTexts.push(pages.map(pg => pg.items.map(it => it.str).join('')).join(''));
+        state.pct = Math.round(((i + 1) / total) * 70);
+        renderBusy('extract');
+      }
+      const termCounts = extractTermCounts(sourceTexts, boilerplateTerms);
+      state.pct = 90; renderBusy('extract');
+
+      const totalChars = sourceTexts.reduce((s, t) => s + t.length, 0);
+      const boilerplateExcludedCount = boilerplateTerms.size;
+      state._extractLog = [
+        { label: 'CMapリソース読込', value: 'OK' },
+        { label: '抽出文字数', value: totalChars.toLocaleString() },
+        { label: '候補用語', value: Object.keys(termCounts).length.toLocaleString() },
+        { label: 'ヘッダー/フッター除去', value: String(boilerplateExcludedCount) },
+      ];
+
+      if (Object.keys(termCounts).length === 0) {
+        throw new Error('レジュメ・過去問PDFからテキストを抽出できませんでした。テキスト埋め込みPDFか確認してください。');
+      }
+
+      state.termCounts = termCounts;
+      state.boilerplateTerms = boilerplateTerms;
+      state.excluded = new Set();
+      state.pct = 100; renderBusy('extract');
+      await new Promise(r => setTimeout(r, 400));
+      go('terms');
+    } catch (e) {
+      go('textbook');
+      showError('エラーが発生しました: ' + e.message);
+    }
+  }
+
+  async function startGenerate() {
+    go('generate');
+    const t0 = performance.now();
+    try {
+      const buf1 = await state.textbookFile.arrayBuffer();
+      const buf2 = await state.textbookFile.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf1, ...PDF_LOAD_OPTS }).promise;
+
+      const pages = await extractLines(pdf, (done, total) => {
+        state.pct = Math.round((done / total) * 45);
+        renderBusy('generate');
+      });
+      state.pct = 50; renderBusy('generate');
+
+      const totalChars = pages.reduce((s, pg) => s + pg.lines.reduce((s2, l) => s2 + l.text.length, 0), 0);
+      if (totalChars === 0) {
+        throw new Error('教科書PDFからテキストを抽出できませんでした。テキスト埋め込みPDFか確認してください。');
+      }
+
+      const effCounts = effectiveTermCounts();
+      const matches = findMatches(pages, effCounts);
+      state.pct = 80; renderBusy('generate');
+
+      state._generateLog = [
+        { label: '行分割', value: pdf.numPages + 'p' },
+        { label: 'マッチ', value: matches.length.toLocaleString() },
+        { label: 'PDF書き出し', value: 'pdf-lib' },
+        { label: '外部送信', value: 'なし' },
+      ];
+
+      const outBytes = await generateHighlightedPdf(buf2, matches, state.tiers);
+      state.pct = 100; renderBusy('generate');
+
+      state.matches = matches;
+      state.outputBytes = outBytes;
+      const blob = new Blob([outBytes], { type: 'application/pdf' });
+      if (state.outputBlobUrl) URL.revokeObjectURL(state.outputBlobUrl);
+      state.outputBlobUrl = URL.createObjectURL(blob);
+      state.pageCount = pdf.numPages;
+      state.elapsedSec = Math.round((performance.now() - t0) / 100) / 10;
+      state.outputSizeMB = (outBytes.length / (1024 * 1024)).toFixed(1);
+
+      await new Promise(r => setTimeout(r, 400));
+      go('result');
+    } catch (e) {
+      go('tiers');
+      showError('エラーが発生しました: ' + e.message);
+    }
+  }
+
+  // ── 描画 ──────────────────────────────────────────────
+  function render() {
+    const s = state;
+    const m = meta(s.screen);
+    const busy = isBusy(s.screen);
+    const idx = SCREENS.indexOf(s.screen);
+
+    $('screen-title').textContent = m.title;
+    $('screen-sub').textContent = m.sub;
+    $('step-label').textContent = m.step;
+
+    const backTarget = BACK_MAP[s.screen];
+    $('btn-back').classList.toggle('hidden', !backTarget || busy);
+    $('btn-back').onclick = () => backTarget && go(backTarget);
+
+    const cur = STEP_OF[s.screen] || 0;
+    $('step-bar').classList.toggle('hidden', cur === 0);
+    if (cur > 0) {
+      const names = ['資料', '教科書', '用語', '設定'];
+      $('step-bar').innerHTML = names.map((name, i) => {
+        const n = i + 1;
+        const filled = n <= cur ? 'filled' : '';
+        const current = n === cur ? 'current' : '';
+        return `<div class="step-seg ${filled} ${current}"><div class="fill"></div><div class="lbl"><span>0${n}</span><span class="name">${name}</span></div></div>`;
+      }).join('');
+    }
+
+    $('error-box').classList.toggle('hidden', !s.error);
+    if (s.error) $('error-box').textContent = s.error;
+
+    showScreen(s.screen);
+    if (s.screen === 'source') renderSource();
+    if (s.screen === 'textbook') renderTextbook();
+    if (s.screen === 'terms') renderTerms();
+    if (s.screen === 'tiers') renderTiers();
+    if (s.screen === 'result') renderResult();
+    if (busy) renderBusy(s.screen);
+
+    renderFooter();
+    renderSheet();
+  }
+
+  function renderSource() {
+    const s = state;
+    $('source-hint').textContent = s.sourceFiles.length ? `${s.sourceFiles.length}件を選択中 — タップで選び直す` : 'PDFを複数まとめて選べます';
+    $('source-list-wrap').classList.toggle('hidden', s.sourceFiles.length === 0);
+    $('source-count-label').textContent = `選択済み ${s.sourceFiles.length}件`;
+    $('source-list').innerHTML = s.sourceFiles.map((f, i) => `
+      <div class="file-row">
+        <span class="no">${String(i + 1).padStart(2, '0')}</span>
+        <span class="name">${escapeHtml(f.file.name)}</span>
+        <span class="pages">${f.pages != null ? f.pages + 'p' : '…'}</span>
+      </div>`).join('');
+    const totalPages = s.sourceFiles.reduce((sum, f) => sum + (f.pages || 0), 0);
+    $('source-total-pages').textContent = `合計 ${totalPages} ページ`;
+  }
+
+  function renderTextbook() {
+    const s = state;
+    $('textbook-label').textContent = s.textbookFile ? s.textbookFile.name : 'ファイルを選ぶ';
+    $('textbook-hint').textContent = s.textbookFile
+      ? `${s.textbookPages != null ? s.textbookPages + 'ページ' : '…'} / ${(s.textbookFile.size / (1024 * 1024)).toFixed(1)}MB`
+      : 'テキスト埋め込みPDFのみ対応';
+  }
+
+  function renderBusy(which) {
+    const s = state;
+    $(which + '-pct').textContent = Math.round(s.pct) + '%';
+    $(which + '-bar').style.width = s.pct + '%';
+    let msg;
+    if (which === 'extract') {
+      msg = s.pct < 40 ? 'レジュメ・過去問からテキストを抽出中…' : s.pct < 80 ? '出現回数を集計中…' : 'ヘッダー・一般語を除外中…';
+    } else {
+      msg = s.pct < 45 ? '教科書PDFを行単位に分解中…' : s.pct < 85 ? '用語をマッチング中…' : 'ハイライト済みPDFを生成中…';
+    }
+    $(which + '-msg').textContent = msg;
+    const log = which === 'extract' ? state._extractLog : state._generateLog;
+    if (log) {
+      $(which + '-log').innerHTML = log.map((l, i) => {
+        const reached = s.pct > (i + 1) * 22;
+        return `<div class="row ${reached ? 'done' : ''}"><span>${l.label}</span><span class="v">${reached ? l.value : '…'}</span></div>`;
+      }).join('');
+    }
+  }
+
+  function renderTerms() {
+    const s = state;
+    const sorted = Object.entries(s.termCounts).sort((a, b) => b[1] - a[1]);
+    const excludedCount = s.excluded.size;
+    $('term-total-label').textContent = `抽出 ${sorted.length}語`;
+    $('term-excluded-label').textContent = `除外中 ${excludedCount}語`;
+    $('term-shown-label').textContent = sorted.length > TERM_DISPLAY_LIMIT ? `上位${TERM_DISPLAY_LIMIT}語を表示` : '';
+
+    const shown = sorted.slice(0, TERM_DISPLAY_LIMIT);
+    const maxCount = shown.length ? shown[0][1] : 1;
+    $('term-list').innerHTML = shown.map(([term, count], i) => {
+      const off = s.excluded.has(term);
+      const barW = Math.round(6 + (count / maxCount) * 60);
+      const barColor = off ? 'rgba(29,31,32,.12)' : tierColorFor(count, s.tiers);
+      return `
+      <button class="term-row ${off ? 'off' : ''}" data-term="${encodeURIComponent(term)}">
+        <span class="term-check">${off ? '' : '✓'}</span>
+        <span class="term-no">${String(i + 1).padStart(2, '0')}</span>
+        <span class="term-text">${escapeHtml(term)}</span>
+        <span class="term-bar" style="width:${barW}px;background:${barColor}"></span>
+        <span class="term-count">${count}</span>
+      </button>`;
+    }).join('');
+    $('term-list').querySelectorAll('.term-row').forEach(btn => {
+      btn.onclick = () => {
+        const term = decodeURIComponent(btn.dataset.term);
+        if (state.excluded.has(term)) state.excluded.delete(term); else state.excluded.add(term);
+        renderTerms();
+        renderFooter();
+      };
+    });
+
+    const boilerplateList = [...s.boilerplateTerms].slice(0, 24);
+    $('excluded-box').classList.toggle('hidden', boilerplateList.length === 0);
+    $('excluded-chips').innerHTML = boilerplateList.map(t => `<span>${escapeHtml(t)}</span>`).join('');
+  }
+
+  function renderTiers() {
+    const s = state;
+    $('tier-cards').innerHTML = s.tiers.map((t, i) => `
+      <div class="tier-card">
+        <div class="tier-top">
+          <button class="stepper-btn" data-act="dec" data-i="${i}">−</button>
+          <div class="tier-count">${t.count}</div>
+          <button class="stepper-btn" data-act="inc" data-i="${i}">＋</button>
+          <div class="tier-unit">回以上</div>
+          <div class="tier-swatch-preview" style="background:${t.color}"></div>
+        </div>
+        <div class="swatch-row">
+          ${SWATCHES.map(c => `<button class="swatch-btn ${c === t.color ? 'picked' : ''}" data-i="${i}" data-color="${c}" style="background:${c}"></button>`).join('')}
+        </div>
+      </div>`).join('');
+    $('tier-cards').querySelectorAll('.stepper-btn').forEach(btn => {
+      btn.onclick = () => {
+        const i = +btn.dataset.i;
+        const d = btn.dataset.act === 'inc' ? 1 : -1;
+        state.tiers[i].count = Math.max(1, state.tiers[i].count + d);
+        renderTiers();
+      };
+    });
+    $('tier-cards').querySelectorAll('.swatch-btn').forEach(btn => {
+      btn.onclick = () => {
+        state.tiers[+btn.dataset.i].color = btn.dataset.color;
+        renderTiers();
+      };
+    });
+  }
+
+  function renderResult() {
+    const s = state;
+    const uniqueTerms = new Set(s.matches.map(m => m.term));
+    $('result-eyebrow').textContent = 'COMPLETE — ' + (s.textbookFile ? s.textbookFile.name : '');
+    $('result-hit').textContent = s.matches.length.toLocaleString();
+    $('result-kind').textContent = uniqueTerms.size.toLocaleString();
+    $('result-meta').innerHTML = `<span>${s.pageCount} PAGES</span><span>${s.elapsedSec}s</span><span>${s.outputSizeMB} MB</span>`;
+
+    // ページごとのマッチ密度からプレビュー行を作る（実データに基づく模式図）
+    const perPage = {};
+    for (const m of s.matches) perPage[m.pageNum] = (perPage[m.pageNum] || 0) + 1;
+    const pageCount = s.pageCount || 1;
+    const sampleCount = 10;
+    const lines = [];
+    for (let i = 0; i < sampleCount; i++) {
+      const p = Math.max(1, Math.round((i + 0.5) / sampleCount * pageCount));
+      const hitsOnPage = s.matches.filter(m => m.pageNum === p).slice(0, 3);
+      const runs = [];
+      let acc = 0;
+      for (const m of hitsOnPage) {
+        const w = 14 + Math.min(40, m.width / 4);
+        runs.push({ w, color: tierColorFor(m.count, s.tiers) });
+        acc += w;
+      }
+      runs.push({ w: Math.max(20, 90 - acc), color: 'rgba(29,31,32,.14)' });
+      lines.push(runs);
+    }
+    $('preview-lines').innerHTML = lines.map(runs =>
+      `<div class="preview-line">${runs.map(r => `<div style="width:${r.w}%;height:8px;background:${r.color}"></div>`).join('')}</div>`
+    ).join('');
+    $('preview-caption').textContent = `p.${Math.round(pageCount / 2)} / ${pageCount} — プレビュー（模式図）`;
+  }
+
+  function renderFooter() {
+    const s = state;
+    const busy = isBusy(s.screen);
+    let primary = null;
+    switch (s.screen) {
+      case 'intro': primary = { label: 'はじめる', disabled: false, on: () => go('source') }; break;
+      case 'source': primary = { label: s.sourceFiles.length ? '次へ — 教科書を選ぶ' : 'ファイルを選んでください', disabled: s.sourceFiles.length === 0, on: () => go('textbook') }; break;
+      case 'textbook': primary = { label: s.textbookFile ? '用語を抽出する' : 'ファイルを選んでください', disabled: !s.textbookFile, on: () => startExtract() }; break;
+      case 'terms': primary = { label: '次へ — ハイライト設定', disabled: false, on: () => go('tiers') }; break;
+      case 'tiers': primary = { label: 'ハイライトを実行', disabled: false, on: () => startGenerate() }; break;
+      case 'result': primary = { label: 'PDFを保存', disabled: false, on: () => { state.sheet = 'save'; render(); } }; break;
+      case 'extract': case 'generate': primary = { label: s.pct >= 100 ? '次へ' : '処理中…', disabled: true }; break;
+    }
+    $('btn-primary').classList.toggle('hidden', !primary);
+    if (primary) {
+      $('btn-primary-label').textContent = primary.label;
+      $('btn-primary').disabled = primary.disabled;
+      $('btn-primary').onclick = primary.on || null;
+    }
+
+    const showSecondary = s.screen === 'result' || busy;
+    $('btn-secondary').classList.toggle('hidden', !showSecondary);
+    if (showSecondary) {
+      $('btn-secondary').textContent = busy ? '中止' : 'もう一度';
+      $('btn-secondary').onclick = busy
+        ? () => go(s.screen === 'extract' ? 'textbook' : 'tiers')
+        : () => resetToStart();
+    }
+    $('busy-note').classList.toggle('hidden', !busy);
+  }
+
+  function resetToStart() {
+    state.sourceFiles = [];
+    state.textbookFile = null;
+    state.textbookPages = null;
+    state.termCounts = {};
+    state.excluded = new Set();
+    state.matches = [];
+    state.error = null;
+    go('source');
+  }
+
+  function renderSheet() {
+    const s = state;
+    $('sheet-overlay').classList.toggle('hidden', !s.sheet);
+    if (!s.sheet) return;
+    if (s.sheet === 'save') {
+      $('sheet-title').textContent = '保存先を選ぶ';
+      const fname = 'highlighted_' + (s.textbookFile ? s.textbookFile.name.replace(/\.pdf$/i, '') : 'output') + '.pdf';
+      $('sheet-sub').textContent = `${fname} / ${s.outputSizeMB}MB`;
+      const canShareFiles = !!(navigator.canShare && s.outputBytes);
+      const items = [
+        { label: 'ファイルに保存', sub: 'ダウンロードフォルダ / このデバイス内', act: () => downloadOutput(fname) },
+      ];
+      if (canShareFiles) {
+        items.push({ label: '共有', sub: 'AirDrop・LINE・メールなど', act: () => shareOutput(fname) });
+      }
+      $('sheet-items').innerHTML = items.map((it, i) => `
+        <button class="sheet-item" data-i="${i}">
+          <span class="dot"></span>
+          <span style="flex:1;min-width:0"><span class="sheet-item-label">${it.label}</span><span class="sheet-item-sub">${it.sub}</span></span>
+        </button>`).join('');
+      $('sheet-items').querySelectorAll('.sheet-item').forEach((btn, i) => { btn.onclick = items[i].act; });
+    }
+  }
+
+  function downloadOutput(fname) {
     const a = document.createElement('a');
-    a.href = outputBlobUrl;
-    a.download = 'highlighted.pdf';
+    a.href = state.outputBlobUrl;
+    a.download = fname;
     a.click();
+    state.sheet = null;
+    render();
+  }
+
+  async function shareOutput(fname) {
+    try {
+      const file = new File([state.outputBytes], fname, { type: 'application/pdf' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: fname });
+      }
+    } catch (e) { /* ユーザーによるキャンセル等は無視 */ }
+    state.sheet = null;
+    render();
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // イベント配線
+  // ═══════════════════════════════════════════════════════════════
+
+  $('btn-pick-source').addEventListener('click', () => $('file-source').click());
+  $('btn-pick-textbook').addEventListener('click', () => $('file-textbook').click());
+  $('btn-clear-source').addEventListener('click', () => { state.sourceFiles = []; renderSource(); renderFooter(); });
+
+  $('file-source').addEventListener('change', async () => {
+    const files = Array.from($('file-source').files || []);
+    if (!files.length) return;
+    state.sourceFiles = files.map(file => ({ file, pages: null }));
+    renderSource(); renderFooter();
+    for (const entry of state.sourceFiles) {
+      try {
+        const buf = await entry.file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buf, ...PDF_LOAD_OPTS }).promise;
+        entry.pages = pdf.numPages;
+      } catch (e) { entry.pages = 0; }
+      renderSource();
+    }
   });
 
-  btnReset.addEventListener('click', () => {
-    cardResult.classList.add('hidden');
-    cardUpload.classList.remove('hidden');
-    progressWrap.classList.add('hidden');
-    fileTextbookInput.value = '';
-    fileSourceInput.value = '';
-    textbookFile = null;
-    sourceFiles = [];
-    filenameTextbook.textContent = 'ファイルを選択';
-    filenameSource.textContent = 'ファイルを選択';
-    filenameTextbook.classList.remove('picked');
-    filenameSource.classList.remove('picked');
-    updateRunButton();
+  $('file-textbook').addEventListener('change', async () => {
+    const file = $('file-textbook').files && $('file-textbook').files[0];
+    if (!file) return;
+    state.textbookFile = file;
+    state.textbookPages = null;
+    renderTextbook(); renderFooter();
+    try {
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf, ...PDF_LOAD_OPTS }).promise;
+      state.textbookPages = pdf.numPages;
+    } catch (e) { state.textbookPages = 0; }
+    renderTextbook();
   });
+
+  $('sheet-close').addEventListener('click', () => { state.sheet = null; render(); });
+  $('sheet-overlay').addEventListener('click', (e) => { if (e.target.id === 'sheet-overlay') { state.sheet = null; render(); } });
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
   }
+
+  render();
 </script>
 </body>
 </html>
