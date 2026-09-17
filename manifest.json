@@ -1,6 +1,6 @@
 {
-  "name": "PDFハイライト ライト版",
-  "short_name": "PDFハイライト",
+  "name": "でるとこライン",
+  "short_name": "でるとこライン",
   "description": "レジュメ・過去問PDFからよく出る用語を抽出し、教科書PDFに自動でハイライト。AI不使用・完全無料・外部送信なし。",
   "start_url": "./index.html",
   "scope": "./",
